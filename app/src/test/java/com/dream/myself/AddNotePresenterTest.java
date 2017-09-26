@@ -59,7 +59,9 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_emptyNoteShowsErrorUi() {
+        mAddNotesPresenter.saveNote("", "");
 
+        verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
