@@ -18,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".addnote.AddNoteActivity" />
+        <activity android:name=".notedetail.NoteDetailActivity" />
     </application>
 
 </manifest>

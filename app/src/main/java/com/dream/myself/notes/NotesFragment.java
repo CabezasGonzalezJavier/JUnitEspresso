@@ -36,6 +36,7 @@ import android.widget.TextView;
 import com.dream.myself.R;
 import com.dream.myself.addnote.AddNoteActivity;
 import com.dream.myself.data.Note;
+import com.dream.myself.notedetail.NoteDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +62,7 @@ public class NotesFragment extends Fragment implements NotesContract.View {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mListAdapter = new NotesAdapter(new ArrayList<Note>(0), mItemListener);
-//        mPresenter = new NotesPresenter(Injection.provideNotesRepository(), this);
+        mListAdapter = new NotesAdapter(new ArrayList<>(0), mItemListener);
     }
 
     @Override
@@ -171,17 +171,15 @@ public class NotesFragment extends Fragment implements NotesContract.View {
     public void showNoteDetailUi(String noteId) {
         // in it's own Activity, since it makes more sense that way and it gives us the flexibility
         // to show some Intent stubbing.
-//        Intent intent = new Intent(getContext(), NoteDetailActivity.class);
-//        intent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, noteId);
-//        startActivity(intent);
+        Intent intent = new Intent(getContext(), NoteDetailActivity.class);
+        intent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, noteId);
+        startActivity(intent);
     }
 
     @Override
     public void setPresenter(NotesContract.UserActionsListener presenter) {
         mPresenter = presenter;
-
     }
-
 
     private static class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.ViewHolder> {
 
@@ -238,8 +236,8 @@ public class NotesFragment extends Fragment implements NotesContract.View {
             public ViewHolder(View itemView, NoteItemListener listener) {
                 super(itemView);
                 mItemListener = listener;
-                title = (TextView) itemView.findViewById(R.id.note_detail_title);
-                description = (TextView) itemView.findViewById(R.id.note_detail_description);
+                title =  itemView.findViewById(R.id.note_detail_title);
+                description = itemView.findViewById(R.id.note_detail_description);
                 itemView.setOnClickListener(this);
             }
 

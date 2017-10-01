@@ -1,6 +1,7 @@
 package com.dream.myself;
 
 import com.dream.myself.addnote.AddNoteActivity;
+import com.dream.myself.notedetail.NoteDetailActivity;
 import com.dream.myself.notes.NotesActivity;
 
 import javax.inject.Singleton;
@@ -16,5 +17,6 @@ public interface AppComponent {
 
     void inject(NotesActivity notesActivity);
     void inject(AddNoteActivity addNoteActivity);
+    void inject(NoteDetailActivity noteDetailActivity);
 
 }

@@ -55,13 +55,10 @@ public class NotesPresenter implements NotesContract.UserActionsListener {
         // that the app is busy until the response is handled.
         EspressoIdlingResource.increment(); // App is busy until further notice
 
-        mNotesRepository.getNotes(new NotesRepository.LoadNotesCallback() {
-            @Override
-            public void onNotesLoaded(List<Note> notes) {
+        mNotesRepository.getNotes((notes) -> {
                 EspressoIdlingResource.decrement(); // Set app as idle.
                 mNotesView.setProgressIndicator(false);
                 mNotesView.showNotes(notes);
-            }
         });
     }
 
