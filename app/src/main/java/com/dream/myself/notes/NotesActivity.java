@@ -89,14 +89,6 @@ public class NotesActivity extends AppCompatActivity {
         new NotesPresenter(mRepository, notesFragment);
     }
 
-//    private void initFragment(Fragment notesFragment) {
-//        // Add the NotesFragment to the layout
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        FragmentTransaction transaction = fragmentManager.beginTransaction();
-//        transaction.add(R.id.contentFrame, notesFragment);
-//        transaction.commit();
-//    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
