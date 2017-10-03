@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.dream.myself.BaseActivity;
 import com.dream.myself.DiscernApplication;
 import com.dream.myself.R;
 import com.dream.myself.data.NotesRepository;
@@ -36,16 +37,9 @@ import com.dream.myself.util.StartActivity;
 
 import javax.inject.Inject;
 
-public class NotesActivity extends AppCompatActivity {
+public class NotesActivity extends BaseActivity {
 
     private DrawerLayout mDrawerLayout;
-
-    @Inject
-    NotesRepository mRepository;
-
-    @Inject
-    ImageFile mImageFile;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,15 +60,9 @@ public class NotesActivity extends AppCompatActivity {
         if (navigationView != null) {
             setupDrawerContent(navigationView);
         }
-        initializeDagger();
         if (null == savedInstanceState) {
             initFragment();
         }
-    }
-
-    private void initializeDagger() {
-        DiscernApplication app = (DiscernApplication) getApplication();
-        app.getAppComponent().inject(this);
     }
 
     private void initFragment () {

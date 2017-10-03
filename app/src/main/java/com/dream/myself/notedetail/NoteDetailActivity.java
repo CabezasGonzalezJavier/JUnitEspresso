@@ -25,6 +25,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.dream.myself.BaseActivity;
+import com.dream.myself.BaseView;
 import com.dream.myself.DiscernApplication;
 import com.dream.myself.R;
 import com.dream.myself.data.NotesRepository;
@@ -37,13 +39,7 @@ import javax.inject.Inject;
 /**
  * Displays note details screen.
  */
-public class NoteDetailActivity extends AppCompatActivity {
-
-    @Inject
-    NotesRepository mRepository;
-
-    @Inject
-    ImageFile mImageFile;
+public class NoteDetailActivity extends BaseActivity {
 
     public static final String EXTRA_NOTE_ID = "NOTE_ID";
 
@@ -62,13 +58,7 @@ public class NoteDetailActivity extends AppCompatActivity {
 
         // Get the requested note id
         String noteId = getIntent().getStringExtra(EXTRA_NOTE_ID);
-        initializeDagger();
         initFragment(noteId);
-    }
-
-    private void initializeDagger() {
-        DiscernApplication app = (DiscernApplication) getApplication();
-        app.getAppComponent().inject(this);
     }
 
     @Override

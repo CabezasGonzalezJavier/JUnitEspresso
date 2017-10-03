@@ -18,16 +18,16 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javiergonzalezcabezas on 1/10/17.
+ * Created by javierg on 03/10/2017.
  */
 
 public class NoteDetailPresenterTest {
 
-    public static final String INVALID_ID = "INVALID_ID";
-    public static final String VALID_ID = "VALID_ID";
-    public static final String TITLE_TEST = "title";
-
-    public static final String DESCRIPTION_TEST = "description";
+    private final static String EMPTY = "";
+    private final static String ID = "123";
+    private final static String TITLE = "Title";
+    private final static String DESCRIPTION = "Description";
+    private final static String URL_IMAGE = "Image";
 
     @Mock
     NotesRepository mNotesRepository;
@@ -38,83 +38,90 @@ public class NoteDetailPresenterTest {
     @Captor
     private ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallbackCaptor;
 
-    NoteDetailPresenter mNoteDetailPresenter;
+    NoteDetailPresenter mPresenter;
 
     @Before
-    public void setUpNoteDetailPresenter() {
+    public void setUp() {
+
         MockitoAnnotations.initMocks(this);
 
-        mNoteDetailPresenter = new NoteDetailPresenter(mNotesRepository, mNotesDetailView);
+        mPresenter = new NoteDetailPresenter(mNotesRepository, mNotesDetailView);
     }
 
     @Test
-    public void showNote_Successful() {
+    public void openNote_EmptyNote() {
 
-        Note note = new Note(VALID_ID, TITLE_TEST, DESCRIPTION_TEST);
-        String title = note.getTitle();
-        String description = note.getDescription();
-        String imageUrl = note.getImageUrl();
+        mPresenter.openNote(EMPTY);
 
-        mNoteDetailPresenter.showNote(note);
-
-        verify(mNotesDetailView).showTitle(title);
-        verify(mNotesDetailView).showDescription(description);
-        verify(mNotesDetailView).showImage(imageUrl);
+        verify(mNotesDetailView).showMissingNote();
     }
 
     @Test
-    public void show_EmptyNote() {
+    public void openNote_NullNote() {
 
-        String titleNote = new String();
-        String descriptionNote = new String();
-        Note note = new Note(titleNote, descriptionNote);
+        mPresenter.openNote(ID);
 
-        mNoteDetailPresenter.showNote(note);
+        verify(mNotesRepository).getNote(eq(ID), mGetNoteCallbackCaptor.capture());
+        mGetNoteCallbackCaptor.getValue().onNoteLoaded(null);
 
-        verify(mNotesDetailView).hideTitle();
-        verify(mNotesDetailView).hideDescription();
-        verify(mNotesDetailView).hideImage();
+        InOrder inOrder = Mockito.inOrder(mNotesDetailView);
+        inOrder.verify(mNotesDetailView).setProgressIndicator(true);
+        inOrder.verify(mNotesDetailView).setProgressIndicator(false);
+
+        verify(mNotesDetailView).showMissingNote();
+
     }
 
     @Test
-    public void openNote_Successful() {
+    public void openNote_Successful () {
 
-        Note note = new Note(TITLE_TEST, DESCRIPTION_TEST);
-        String noteID = note.getId();
+        Note note = new Note(TITLE, DESCRIPTION);
 
-        mNoteDetailPresenter.openNote(noteID);
+        mPresenter.openNote(note.getId());
 
-        verify(mNotesRepository).getNote(eq(noteID), mGetNoteCallbackCaptor.capture());
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackCaptor.capture());
         mGetNoteCallbackCaptor.getValue().onNoteLoaded(note);
 
         InOrder inOrder = Mockito.inOrder(mNotesDetailView);
         inOrder.verify(mNotesDetailView).setProgressIndicator(true);
         inOrder.verify(mNotesDetailView).setProgressIndicator(false);
 
-        verify(mNotesDetailView).showTitle(TITLE_TEST);
-        verify(mNotesDetailView).showDescription(DESCRIPTION_TEST);
+        verify(mNotesDetailView).showTitle(TITLE);
+        verify(mNotesDetailView).showDescription(DESCRIPTION);
     }
 
     @Test
-    public void missingNote () {
+    public void showNote_Successful () {
 
-        mNoteDetailPresenter.openNote("");
+        Note note = new Note(TITLE, DESCRIPTION);
 
-        verify(mNotesDetailView).showMissingNote();
+        mPresenter.showNote(note);
+
+        verify(mNotesDetailView).showTitle(TITLE);
+        verify(mNotesDetailView).showDescription(DESCRIPTION);
     }
 
     @Test
-    public void getUnKnowNote_FromRepositoryAndLoadIntoView () {
-        mNoteDetailPresenter.openNote(INVALID_ID);
+    public void showNote_SuccessfulWithImage () {
+        Note note = new Note(TITLE, DESCRIPTION, URL_IMAGE);
 
-        verify(mNotesDetailView).setProgressIndicator(true);
-        verify(mNotesRepository).getNote(eq(INVALID_ID), mGetNoteCallbackCaptor.capture());
+        mPresenter.showNote(note);
 
-        mGetNoteCallbackCaptor.getValue().onNoteLoaded(null);
+        verify(mNotesDetailView).showTitle(TITLE);
+        verify(mNotesDetailView).showDescription(DESCRIPTION);
+        verify(mNotesDetailView).showImage(URL_IMAGE);
+    }
 
-        verify(mNotesDetailView).setProgressIndicator(false);
-        verify(mNotesDetailView).showMissingNote();
+    @Test
+    public void showNote_Hide () {
 
+        Note note = new Note("", "");
+
+        mPresenter.showNote(note);
+
+        verify(mNotesDetailView).hideTitle();
+        verify(mNotesDetailView).hideDescription();
+        verify(mNotesDetailView).hideImage();
     }
 
 }
