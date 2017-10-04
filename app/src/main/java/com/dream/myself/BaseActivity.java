@@ -7,7 +7,6 @@ import com.dream.myself.data.NotesRepository;
 import com.dream.myself.util.ImageFile;
 
 import javax.inject.Inject;
-
 /**
  * Created by javierg on 03/10/2017.
  */

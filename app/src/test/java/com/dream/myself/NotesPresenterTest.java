@@ -18,11 +18,11 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.booleanThat;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javiergonzalezcabezas on 24/9/17.
+ * Created by javierg on 04/10/2017.
  */
 
 public class NotesPresenterTest {
@@ -37,55 +37,55 @@ public class NotesPresenterTest {
     @Mock
     NotesContract.View mNotesView;
 
-    @Captor
-    private ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackCaptor;
+    NotesPresenter mNotesPresenter;
 
-    NotesPresenter mPresenter;
+    @Captor
+    ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
 
     @Before
-    public void setUp() {
+    public void setUp () {
+
         MockitoAnnotations.initMocks(this);
-        NOTES = Lists.newArrayList(new Note("Title1", "Description1"),
-                new Note("Title2", "Description2"));
-        EMPTY_NOTES = new ArrayList<>(0);
 
-        mPresenter = new NotesPresenter(mNotesRepository, mNotesView);
+        mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
+
+        NOTES = Lists.newArrayList(new Note("Title1", "Description1"), new Note("Title2", "Description2"));
     }
 
     @Test
-    public void addNewNoteTest() {
-
-        mPresenter.addNewNote();
-
-        verify(mNotesView).showAddNote();
-    }
-
-    @Test
-    public void openNoteDetailsTest() {
-
-        String title = "title";
-        String description = "description";
-        Note note = new Note(title, description);
-
-        mPresenter.openNoteDetails(note);
-
-        verify(mNotesView).showNoteDetailUi(any(String.class));
-    }
-
-    @Test
-    public void loadNotesTest() {
+    public void loadNotes_successful () {
 
         boolean forceUpdate = true;
 
-        mPresenter.loadNotes(forceUpdate);
+        mNotesPresenter.loadNotes(forceUpdate);
 
-        verify(mNotesRepository).getNotes(mLoadNotesCallbackCaptor.capture());
-        mLoadNotesCallbackCaptor.getValue().onNotesLoaded(NOTES);
+        verify(mNotesRepository).getNotes(mLoadNotesCallbackArgumentCaptor.capture());
+        mLoadNotesCallbackArgumentCaptor.getValue().onNotesLoaded(NOTES);
 
         InOrder inOrder = Mockito.inOrder(mNotesView);
         inOrder.verify(mNotesView).setProgressIndicator(true);
         inOrder.verify(mNotesView).setProgressIndicator(false);
+
         verify(mNotesView).showNotes(NOTES);
+    }
+
+    @Test
+    public void addNewNote_successful () {
+
+        mNotesPresenter.addNewNote();
+
+        verify(mNotesView).showAddNote();
 
     }
+
+    @Test
+    public void openNoteDetails () {
+
+        Note note = new Note("Title1", "Description1");
+
+        mNotesPresenter.openNoteDetails(note);
+
+        verify(mNotesView).showNoteDetailUi(note.getId());
+    }
+
 }
