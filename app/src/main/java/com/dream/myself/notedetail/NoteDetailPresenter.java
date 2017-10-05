@@ -49,16 +49,13 @@ public class NoteDetailPresenter implements NoteDetailContract.UserActionsListen
         }
 
         mNotesDetailView.setProgressIndicator(true);
-        mNotesRepository.getNote(noteId, new NotesRepository.GetNoteCallback() {
-            @Override
-            public void onNoteLoaded(Note note) {
+        mNotesRepository.getNote(noteId, (Note note) -> {
                 mNotesDetailView.setProgressIndicator(false);
                 if (null == note) {
                     mNotesDetailView.showMissingNote();
                 } else {
                     showNote(note);
                 }
-            }
         });
     }
 
