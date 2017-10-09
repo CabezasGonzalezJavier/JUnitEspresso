@@ -48,12 +48,9 @@ public class InMemoryNotesRepository implements NotesRepository {
         checkNotNull(callback);
         // Load from API only if needed.
         if (mCachedNotes == null) {
-            mNotesServiceApi.getAllNotes(new NotesServiceApi.NotesServiceCallback<List<Note>>() {
-                @Override
-                public void onLoaded(List<Note> notes) {
+            mNotesServiceApi.getAllNotes((List<Note> notes) -> {
                     mCachedNotes = ImmutableList.copyOf(notes);
                     callback.onNotesLoaded(mCachedNotes);
-                }
             });
         } else {
             callback.onNotesLoaded(mCachedNotes);
