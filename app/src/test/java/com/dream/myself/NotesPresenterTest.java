@@ -17,10 +17,11 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 09/10/2017.
+ * Created by javierg on 10/10/2017.
  */
 
 public class NotesPresenterTest {
@@ -40,17 +41,19 @@ public class NotesPresenterTest {
 
     @Before
     public void setUpNotesPresenterTest () {
+
         MockitoAnnotations.initMocks(this);
 
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
-
         mNoteList = new ArrayList<>();
         mNoteList.add(new Note("title", "description"));
-        mNoteList.add(new Note("title", "description"));
+        mNoteList.add(new Note("title2", "description2"));
+
     }
 
     @Test
-    public void loadNotes_successful () {
+    public void loadNotes_showNotes() {
+
         boolean forceUpdate = true;
 
         mNotesPresenter.loadNotes(forceUpdate);
@@ -61,24 +64,23 @@ public class NotesPresenterTest {
         InOrder inOrder = Mockito.inOrder(mNotesView);
         inOrder.verify(mNotesView).setProgressIndicator(true);
         inOrder.verify(mNotesView).setProgressIndicator(false);
+
         verify(mNotesView).showNotes(mNoteList);
     }
 
     @Test
-    public void addNewNote () {
-
+    public void addNewNoteTest() {
         mNotesPresenter.addNewNote();
 
         verify(mNotesView).showAddNote();
     }
 
     @Test
-    public void openNoteDetails () {
+    public void openNoteDetails() {
+        Note requestedNote = new Note("title", "descritpiton");
 
-        Note note = new Note("title","description");
+        mNotesPresenter.openNoteDetails(requestedNote);
 
-        mNotesPresenter.openNoteDetails(note);
-
-        verify(mNotesView).showNoteDetailUi(note.getId());
+        verify(mNotesView).showNoteDetailUi(requestedNote.getId());
     }
 }

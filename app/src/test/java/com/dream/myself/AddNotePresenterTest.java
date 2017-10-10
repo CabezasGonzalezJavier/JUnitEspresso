@@ -1,5 +1,7 @@
 package com.dream.myself;
 
+import android.support.annotation.NonNull;
+
 import com.dream.myself.addnote.AddNoteContract;
 import com.dream.myself.addnote.AddNotePresenter;
 import com.dream.myself.data.Note;
@@ -16,16 +18,17 @@ import java.io.IOException;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.verifyNew;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
- * Created by javierg on 09/10/2017.
+ * Created by javierg on 10/10/2017.
  */
 
 public class AddNotePresenterTest {
 
-    private final static String TITLE = "title";
-    private final static String DESCRIPTION = "Description";
+    final static String TITLE = "title";
+    final static String DESCRIPTION = "description";
 
     @Mock
     NotesRepository mNotesRepository;
@@ -37,40 +40,39 @@ public class AddNotePresenterTest {
     AddNotePresenter mAddNotePresenter;
 
     @Before
-    public void setUpAddNotePresenterTest () {
+    public void setUpAddNotePresenterTest() {
+
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
     }
 
     @Test
-    public void saveNote_showNotesList () {
+    public void saveNote_successful() {
 
-        String url = "url";
+        String imageUrl = "imageURL";
 
         when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn(url);
+        when(mImageFile.getPath()).thenReturn(imageUrl);
         mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
 
         verify(mNotesRepository).saveNote(any(Note.class));
         verify(mAddNoteView).showNotesList();
-
     }
 
     @Test
-    public void saveNote_EmptyNoteError () {
-
-        String url = "url";
+    public void saveNote_showEmptyNoteError() {
+        String imageUrl = "imageURL";
 
         when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn(url);
+        when(mImageFile.getPath()).thenReturn(imageUrl);
         mAddNotePresenter.saveNote("", "");
 
         verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
-    public void takePicture_openCamera ()  throws IOException {
+    public void takePictureTest () throws IOException {
 
         mAddNotePresenter.takePicture();
 
@@ -80,7 +82,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_showImagePreview () {
+    public void imageAvailable_successful () {
 
         when(mImageFile.exists()).thenReturn(true);
 
@@ -101,12 +103,11 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailedTest () {
+    public void imageCaptureFailed () {
 
         mAddNotePresenter.imageCaptureFailed();
 
         verify(mImageFile).delete();
         verify(mAddNoteView).showImageError();
     }
-
 }
