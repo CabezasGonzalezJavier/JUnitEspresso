@@ -9,67 +9,60 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 10/10/2017.
+ * Created by javierg on 11/10/2017.
  */
 
 public class NotesPresenterTest {
 
-    @Mock
-    NotesRepository mNotesRepository;
+    private static List<Note> NOTES;
 
     @Mock
-    NotesContract.View mNotesView;
+    private NotesRepository mNotesRepository;
+
+    @Mock
+    private NotesContract.View mNotesView;
 
     @Captor
-    ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
+    private ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
 
-    NotesPresenter mNotesPresenter;
-
-    List<Note> mNoteList;
+    private NotesPresenter mNotesPresenter;
 
     @Before
     public void setUpNotesPresenterTest () {
-
         MockitoAnnotations.initMocks(this);
 
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
-        mNoteList = new ArrayList<>();
-        mNoteList.add(new Note("title", "description"));
-        mNoteList.add(new Note("title2", "description2"));
 
+        NOTES = new ArrayList<>();
+
+        NOTES.add(new Note("title", "description"));
+        NOTES.add(new Note("title", "description"));
     }
 
     @Test
-    public void loadNotes_showNotes() {
-
+    public void loadNotes_successful () {
         boolean forceUpdate = true;
 
         mNotesPresenter.loadNotes(forceUpdate);
 
         verify(mNotesRepository).getNotes(mLoadNotesCallbackArgumentCaptor.capture());
-        mLoadNotesCallbackArgumentCaptor.getValue().onNotesLoaded(mNoteList);
+        mLoadNotesCallbackArgumentCaptor.getValue().onNotesLoaded(NOTES);
 
-        InOrder inOrder = Mockito.inOrder(mNotesView);
-        inOrder.verify(mNotesView).setProgressIndicator(true);
-        inOrder.verify(mNotesView).setProgressIndicator(false);
-
-        verify(mNotesView).showNotes(mNoteList);
+        verify(mNotesView).showNotes(NOTES);
     }
 
     @Test
     public void addNewNoteTest() {
+
         mNotesPresenter.addNewNote();
 
         verify(mNotesView).showAddNote();
@@ -77,10 +70,10 @@ public class NotesPresenterTest {
 
     @Test
     public void openNoteDetails() {
-        Note requestedNote = new Note("title", "descritpiton");
+        Note note = new Note("title", "description");
 
-        mNotesPresenter.openNoteDetails(requestedNote);
+        mNotesPresenter.openNoteDetails(note);
 
-        verify(mNotesView).showNoteDetailUi(requestedNote.getId());
+        verify(mNotesView).showNoteDetailUi(note.getId());
     }
 }

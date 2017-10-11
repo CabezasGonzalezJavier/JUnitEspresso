@@ -18,42 +18,41 @@ import java.io.IOException;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.verifyNew;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 10/10/2017.
+ * Created by javierg on 11/10/2017.
  */
 
 public class AddNotePresenterTest {
 
-    final static String TITLE = "title";
-    final static String DESCRIPTION = "description";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
 
     @Mock
-    NotesRepository mNotesRepository;
+    private NotesRepository mNotesRepository;
     @Mock
-    AddNoteContract.View mAddNoteView;
+    private AddNoteContract.View mAddNoteView;
     @Mock
-    ImageFile mImageFile;
+    private ImageFile mImageFile;
 
-    AddNotePresenter mAddNotePresenter;
+    private AddNotePresenter mAddNotePresenter;
 
     @Before
     public void setUpAddNotePresenterTest() {
-
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
     }
 
     @Test
-    public void saveNote_successful() {
+    public void saveNote_successful () {
 
         String imageUrl = "imageURL";
 
         when(mImageFile.exists()).thenReturn(true);
         when(mImageFile.getPath()).thenReturn(imageUrl);
+
         mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
 
         verify(mNotesRepository).saveNote(any(Note.class));
@@ -62,27 +61,28 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_showEmptyNoteError() {
-        String imageUrl = "imageURL";
+
+        String imageUrl = "";
 
         when(mImageFile.exists()).thenReturn(true);
         when(mImageFile.getPath()).thenReturn(imageUrl);
+
         mAddNotePresenter.saveNote("", "");
 
         verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
-    public void takePictureTest () throws IOException {
+    public void takePictureTest() throws IOException {
 
         mAddNotePresenter.takePicture();
 
         verify(mImageFile).create(anyString(), anyString());
         verify(mAddNoteView).openCamera(anyString());
-
     }
 
     @Test
-    public void imageAvailable_successful () {
+    public void imageAvailable_successful() {
 
         when(mImageFile.exists()).thenReturn(true);
 
@@ -92,8 +92,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_imageCaptureFailed () {
-
+    public void imageAvailable_imageCaptureFailed() {
         when(mImageFile.exists()).thenReturn(false);
 
         mAddNotePresenter.imageAvailable();
@@ -103,8 +102,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailed () {
-
+    public void imageCaptureFailedTest() {
         mAddNotePresenter.imageCaptureFailed();
 
         verify(mImageFile).delete();

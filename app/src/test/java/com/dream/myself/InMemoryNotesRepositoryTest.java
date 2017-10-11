@@ -45,17 +45,12 @@ public class InMemoryNotesRepositoryTest {
     @Captor
     ArgumentCaptor<NotesServiceApi.NotesServiceCallback> mNotesServiceCallbackArgumentCaptor;
 
-    InMemoryNotesRepository mInMemoryNotesRepository;
-
-    static List<Note> NOTESE = Lists.newArrayList(new Note("Title1", "Description1"),
-            new Note("Title2", "Description2"));
-
     @Before
     public void setUpInMemoryNotesRepository() {
 
         MockitoAnnotations.initMocks(this);
-
-        mInMemoryNotesRepository = new InMemoryNotesRepository(mNotesServiceApi);
+        // Get a reference to the class under test
+        mNotesRepository = new InMemoryNotesRepository(mNotesServiceApi);
     }
 
     @Test
@@ -76,18 +71,17 @@ public class InMemoryNotesRepositoryTest {
         mNotesRepository.getNotes(mLoadNotesCallback);
 
         verify(mNotesServiceApi, times(2)).getAllNotes(any(NotesServiceApi.NotesServiceCallback.class));
-
     }
-
-
 
     private void twoLoadCallsToRepository(NotesRepository.LoadNotesCallback callback) {
-
+        // When notes are requested from repository
         mNotesRepository.getNotes(callback);
 
-        mNotesServiceApi.getAllNotes(mNotesServiceCallbackArgumentCaptor.capture());
-        mNotesServiceCallbackArgumentCaptor.getValue().onLoaded(NOTESE);
+        verify(mNotesServiceApi).getAllNotes(mNotesServiceCallbackArgumentCaptor.capture());
 
-        mNotesRepository.getNotes(callback);
+        mNotesServiceCallbackArgumentCaptor.getValue().onLoaded(NOTES);
+
+        mNotesRepository.getNotes(callback);// Second call to API
     }
+
 }

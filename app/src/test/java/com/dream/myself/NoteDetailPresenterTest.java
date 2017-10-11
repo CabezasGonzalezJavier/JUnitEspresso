@@ -14,17 +14,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 10/10/2017.
+ * Created by javierg on 11/10/2017.
  */
 
 public class NoteDetailPresenterTest {
 
-    final static String TITLE = "title";
-    final static String DESCRIPTION = "description";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
 
     @Mock
     NotesRepository mNotesRepository;
@@ -32,16 +33,16 @@ public class NoteDetailPresenterTest {
     @Mock
     NoteDetailContract.View mNotesDetailView;
 
+    NoteDetailPresenter mNoteDetailPresenter;
+
     @Captor
     ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallbackArgumentCaptor;
 
-    NoteDetailPresenter mNoteDetailPresenter;
-
     @Before
-    public void setUpNoteDetailPresenterTest() {
+    public void setUpNoteDetailPresenterTest () {
         MockitoAnnotations.initMocks(this);
 
-        mNoteDetailPresenter = new  NoteDetailPresenter(mNotesRepository, mNotesDetailView);
+        mNoteDetailPresenter = new NoteDetailPresenter(mNotesRepository, mNotesDetailView);
     }
 
     @Test
@@ -57,30 +58,37 @@ public class NoteDetailPresenterTest {
         InOrder inOrder = Mockito.inOrder(mNotesDetailView);
         inOrder.verify(mNotesDetailView).setProgressIndicator(true);
         inOrder.verify(mNotesDetailView).setProgressIndicator(false);
-
         verify(mNotesDetailView).showTitle(TITLE);
         verify(mNotesDetailView).showDescription(DESCRIPTION);
-
+        verify(mNotesDetailView).hideImage();
     }
 
     @Test
-    public void openNote_showMissingNote () {
+    public void openNote_successfulWithImageUrl () {
+        Note note = new Note(TITLE, DESCRIPTION, "imageUrl");
 
-        mNoteDetailPresenter.openNote("");
+        mNoteDetailPresenter.openNote(note.getId());
 
-        verify(mNotesDetailView).showMissingNote();
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
+
+
+        InOrder inOrder = Mockito.inOrder(mNotesDetailView);
+        inOrder.verify(mNotesDetailView).setProgressIndicator(true);
+        inOrder.verify(mNotesDetailView).setProgressIndicator(false);
+        verify(mNotesDetailView).showTitle(TITLE);
+        verify(mNotesDetailView).showDescription(DESCRIPTION);
+        verify(mNotesDetailView).showImage("imageUrl");
     }
 
     @Test
-    public void openNote_showMissingNoteWithCaptor () {
-
-        Note note = new Note("", "");
+    public void openNote_showMissingNote() {
+        Note note = new Note(TITLE, DESCRIPTION, "imageUrl");
 
         mNoteDetailPresenter.openNote(note.getId());
 
         verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
         mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(null);
-
 
         InOrder inOrder = Mockito.inOrder(mNotesDetailView);
         inOrder.verify(mNotesDetailView).setProgressIndicator(true);
@@ -89,29 +97,51 @@ public class NoteDetailPresenterTest {
     }
 
     @Test
-    public void showNote_successful() {
-        Note note = new Note(TITLE, DESCRIPTION);
+    public void openNote_hideTitleDescriptionImageURL() {
+        Note note = new Note("", "");
 
-        mNoteDetailPresenter.showNote(note);
+        mNoteDetailPresenter.openNote(note.getId());
 
-        verify(mNotesDetailView).showTitle(TITLE);
-        verify(mNotesDetailView).showDescription(DESCRIPTION);
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
+
+        InOrder inOrder = Mockito.inOrder(mNotesDetailView);
+        inOrder.verify(mNotesDetailView).setProgressIndicator(true);
+        inOrder.verify(mNotesDetailView).setProgressIndicator(false);
+        verify(mNotesDetailView).hideTitle();
+        verify(mNotesDetailView).hideDescription();
         verify(mNotesDetailView).hideImage();
     }
 
     @Test
-    public void showNote_successfulWithImage() {
-        Note note = new Note(TITLE, DESCRIPTION, "imageUrl");
+    public void showNote_showTitleDescription() {
+
+        Note note = new Note(TITLE, DESCRIPTION);
 
         mNoteDetailPresenter.showNote(note);
 
-        verify(mNotesDetailView).showTitle(TITLE);
-        verify(mNotesDetailView).showDescription(DESCRIPTION);
-        verify(mNotesDetailView).showImage("imageUrl");
+        verify(mNotesDetailView).showTitle(anyString());
+        verify(mNotesDetailView).showDescription(anyString());
+        verify(mNotesDetailView).hideImage();
+
     }
 
     @Test
-    public void showNote_EmptyTitleDescriptionURL () {
+    public void showNote_showTitleDescriptionImageURL() {
+
+        Note note = new Note(TITLE, DESCRIPTION, "imageURL");
+
+        mNoteDetailPresenter.showNote(note);
+
+        verify(mNotesDetailView).showTitle(anyString());
+        verify(mNotesDetailView).showDescription(anyString());
+        verify(mNotesDetailView).showImage("imageURL");
+
+    }
+
+    @Test
+    public void showNote_hideTitleDescriptionImageURL() {
+
         Note note = new Note("", "");
 
         mNoteDetailPresenter.showNote(note);
@@ -119,5 +149,6 @@ public class NoteDetailPresenterTest {
         verify(mNotesDetailView).hideTitle();
         verify(mNotesDetailView).hideDescription();
         verify(mNotesDetailView).hideImage();
+
     }
 }
