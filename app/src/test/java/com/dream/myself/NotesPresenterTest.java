@@ -15,15 +15,14 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 11/10/2017.
+ * Created by javierg on 12/10/2017.
  */
 
 public class NotesPresenterTest {
-
-    private static List<Note> NOTES;
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -36,6 +35,8 @@ public class NotesPresenterTest {
 
     private NotesPresenter mNotesPresenter;
 
+    private static List<Note> NOTES;
+
     @Before
     public void setUpNotesPresenterTest () {
         MockitoAnnotations.initMocks(this);
@@ -43,13 +44,12 @@ public class NotesPresenterTest {
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
 
         NOTES = new ArrayList<>();
-
         NOTES.add(new Note("title", "description"));
         NOTES.add(new Note("title", "description"));
     }
 
     @Test
-    public void loadNotes_successful () {
+    public void loadNotes_successful() {
         boolean forceUpdate = true;
 
         mNotesPresenter.loadNotes(forceUpdate);
@@ -61,8 +61,7 @@ public class NotesPresenterTest {
     }
 
     @Test
-    public void addNewNoteTest() {
-
+    public void addNewNoteTest () {
         mNotesPresenter.addNewNote();
 
         verify(mNotesView).showAddNote();
@@ -74,6 +73,6 @@ public class NotesPresenterTest {
 
         mNotesPresenter.openNoteDetails(note);
 
-        verify(mNotesView).showNoteDetailUi(note.getId());
+        mNotesView.showNoteDetailUi(note.getId());
     }
 }

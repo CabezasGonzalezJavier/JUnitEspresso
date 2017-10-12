@@ -1,7 +1,5 @@
 package com.dream.myself;
 
-import android.support.annotation.NonNull;
-
 import com.dream.myself.addnote.AddNoteContract;
 import com.dream.myself.addnote.AddNotePresenter;
 import com.dream.myself.data.Note;
@@ -21,13 +19,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 11/10/2017.
+ * Created by javierg on 12/10/2017.
  */
 
 public class AddNotePresenterTest {
 
-    private static final String TITLE = "title";
-    private static final String DESCRIPTION = "description";
+    private final static String TITLE = "title";
+    private final static String DESCRIPTION = "description";
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -36,10 +34,10 @@ public class AddNotePresenterTest {
     @Mock
     private ImageFile mImageFile;
 
-    private AddNotePresenter mAddNotePresenter;
+    AddNotePresenter mAddNotePresenter;
 
     @Before
-    public void setUpAddNotePresenterTest() {
+    public void setUpAddNotePresenterTest () {
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
@@ -48,25 +46,20 @@ public class AddNotePresenterTest {
     @Test
     public void saveNote_successful () {
 
-        String imageUrl = "imageURL";
-
         when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn(imageUrl);
-
+        when(mImageFile.getPath()).thenReturn("image");
         mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
 
         verify(mNotesRepository).saveNote(any(Note.class));
         verify(mAddNoteView).showNotesList();
+
     }
 
     @Test
     public void saveNote_showEmptyNoteError() {
 
-        String imageUrl = "";
-
         when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn(imageUrl);
-
+        when(mImageFile.getPath()).thenReturn("image");
         mAddNotePresenter.saveNote("", "");
 
         verify(mAddNoteView).showEmptyNoteError();
@@ -93,8 +86,8 @@ public class AddNotePresenterTest {
 
     @Test
     public void imageAvailable_imageCaptureFailed() {
-        when(mImageFile.exists()).thenReturn(false);
 
+        when(mImageFile.exists()).thenReturn(false);
         mAddNotePresenter.imageAvailable();
 
         verify(mImageFile).delete();

@@ -4,7 +4,6 @@ import com.dream.myself.data.InMemoryNotesRepository;
 import com.dream.myself.data.Note;
 import com.dream.myself.data.NotesRepository;
 import com.dream.myself.data.NotesServiceApi;
-import com.google.common.collect.Lists;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,75 +12,110 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 09/10/2017.
+ * Created by javierg on 12/10/2017.
  */
 
 public class InMemoryNotesRepositoryTest {
 
-    private final static String TITLE = "title";
-    private final static String DESCRIPTION = "Description";
-
-    private static List<Note> NOTES = Lists.newArrayList(new Note("Title1", "Description1"),
-            new Note("Title2", "Description2"));
-
-    InMemoryNotesRepository mNotesRepository;
+    @Mock
+    private NotesServiceApi mNotesServiceApi;
 
     @Mock
-    NotesServiceApi mNotesServiceApi;
+    private NotesRepository.LoadNotesCallback mLoadNotesCallback;
 
     @Mock
-    NotesRepository.GetNoteCallback mGetNoteCallback;
+    private NotesRepository.GetNoteCallback mGetNoteCallback;
 
-    @Mock
-    NotesRepository.LoadNotesCallback mLoadNotesCallback;
 
     @Captor
     ArgumentCaptor<NotesServiceApi.NotesServiceCallback> mNotesServiceCallbackArgumentCaptor;
 
-    @Before
-    public void setUpInMemoryNotesRepository() {
+    InMemoryNotesRepository mMemoryNotesRepository;
 
+    private static List<Note> NOTES;
+
+    @Before
+    public void setUpInInMemoryNotesRepositoryTest() {
         MockitoAnnotations.initMocks(this);
-        // Get a reference to the class under test
-        mNotesRepository = new InMemoryNotesRepository(mNotesServiceApi);
+
+        mMemoryNotesRepository = new InMemoryNotesRepository(mNotesServiceApi);
+
+        NOTES = new ArrayList<>();
+        NOTES.add(new Note("title", "description"));
+        NOTES.add(new Note("title", "description"));
     }
 
     @Test
-    public void getNotes_repositoryCachesAfterFirstApiCall() {
-        // Given a setup Captor to capture callbacks
-        // When two calls are issued to the notes repository
+    public void getNotes_noCachedNotes() {
+
         twoLoadCallsToRepository(mLoadNotesCallback);
 
-        // Then notes where only requested once from Service API
         verify(mNotesServiceApi).getAllNotes(any(NotesServiceApi.NotesServiceCallback.class));
     }
 
     @Test
     public void invalidateCache_DoesNotCallTheServiceApi() {
+        // Given a setup Captor to capture callbacks
         twoLoadCallsToRepository(mLoadNotesCallback);
 
-        mNotesRepository.refreshData();
-        mNotesRepository.getNotes(mLoadNotesCallback);
+        // When data refresh is requested
+        mMemoryNotesRepository.refreshData();
+        mMemoryNotesRepository.getNotes(mLoadNotesCallback); // Third call to API
 
+        // The notes where requested twice from the Service API (Caching on first and third call)
         verify(mNotesServiceApi, times(2)).getAllNotes(any(NotesServiceApi.NotesServiceCallback.class));
     }
 
-    private void twoLoadCallsToRepository(NotesRepository.LoadNotesCallback callback) {
+    @Test
+    public void getNotes_requestsAllNotesFromServiceApi() {
+        // When notes are requested from the notes repository
+        mMemoryNotesRepository.getNotes(mLoadNotesCallback);
+
+        // Then notes are loaded from the service API
+        verify(mNotesServiceApi).getAllNotes(any(NotesServiceApi.NotesServiceCallback.class));
+    }
+
+    @Test
+    public void saveNote_savesNoteToServiceAPIAndInvalidatesCache() {
+        Note note = new Note("title", "description");
+
+        mMemoryNotesRepository.saveNote(note);
+
+        assertThat(mMemoryNotesRepository.mCachedNotes, is(nullValue()));
+
+    }
+
+    @Test
+    public void getNote_requestsSingleNoteFromServiceApi() {
+        Note note = new Note("title", "description");
+        mMemoryNotesRepository.getNote(note.getId(), mGetNoteCallback);
+
+        verify(mNotesServiceApi).getNote(eq(note.getId()), any(NotesServiceApi.NotesServiceCallback.class));
+
+    }
+
+    public void twoLoadCallsToRepository(NotesRepository.LoadNotesCallback callback) {
         // When notes are requested from repository
-        mNotesRepository.getNotes(callback);
+        mMemoryNotesRepository.getNotes(callback); // First call to API
 
         verify(mNotesServiceApi).getAllNotes(mNotesServiceCallbackArgumentCaptor.capture());
 
         mNotesServiceCallbackArgumentCaptor.getValue().onLoaded(NOTES);
 
-        mNotesRepository.getNotes(callback);// Second call to API
+        mMemoryNotesRepository.getNotes(callback); // Second call to API
     }
+
 
 }

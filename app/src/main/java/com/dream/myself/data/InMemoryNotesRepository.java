@@ -37,7 +37,7 @@ public class InMemoryNotesRepository implements NotesRepository {
      * package.
      */
     @VisibleForTesting
-    List<Note> mCachedNotes;
+    public List<Note> mCachedNotes;
 
     public InMemoryNotesRepository(@NonNull NotesServiceApi notesServiceApi) {
         mNotesServiceApi = checkNotNull(notesServiceApi);
