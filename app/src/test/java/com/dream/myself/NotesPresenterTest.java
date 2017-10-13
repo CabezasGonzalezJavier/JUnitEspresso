@@ -9,17 +9,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 12/10/2017.
+ * Created by javierg on 13/10/2017.
  */
 
 public class NotesPresenterTest {
@@ -33,23 +34,24 @@ public class NotesPresenterTest {
     @Captor
     private ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
 
-    private NotesPresenter mNotesPresenter;
+    NotesPresenter mNotesPresenter;
 
     private static List<Note> NOTES;
 
     @Before
-    public void setUpNotesPresenterTest () {
+    public void setUpNotesPresenterTest() {
         MockitoAnnotations.initMocks(this);
 
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
 
         NOTES = new ArrayList<>();
         NOTES.add(new Note("title", "description"));
-        NOTES.add(new Note("title", "description"));
+        NOTES.add(new Note("title1", "description1"));
     }
 
     @Test
-    public void loadNotes_successful() {
+    public void loadNotes_showNotes() {
+
         boolean forceUpdate = true;
 
         mNotesPresenter.loadNotes(forceUpdate);
@@ -57,22 +59,26 @@ public class NotesPresenterTest {
         verify(mNotesRepository).getNotes(mLoadNotesCallbackArgumentCaptor.capture());
         mLoadNotesCallbackArgumentCaptor.getValue().onNotesLoaded(NOTES);
 
+        InOrder inOrder = Mockito.inOrder(mNotesView);
+        inOrder.verify(mNotesView).setProgressIndicator(true);
+        inOrder.verify(mNotesView).setProgressIndicator(false);
         verify(mNotesView).showNotes(NOTES);
     }
 
     @Test
-    public void addNewNoteTest () {
+    public void addNewNoteTest() {
+
         mNotesPresenter.addNewNote();
 
         verify(mNotesView).showAddNote();
     }
 
     @Test
-    public void openNoteDetails() {
+    public void openNoteDetailsTest() {
         Note note = new Note("title", "description");
 
         mNotesPresenter.openNoteDetails(note);
 
-        mNotesView.showNoteDetailUi(note.getId());
+        verify(mNotesView).showNoteDetailUi(note.getId());
     }
 }

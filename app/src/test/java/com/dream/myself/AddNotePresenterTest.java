@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 12/10/2017.
+ * Created by javierg on 13/10/2017.
  */
 
 public class AddNotePresenterTest {
@@ -37,36 +37,32 @@ public class AddNotePresenterTest {
     AddNotePresenter mAddNotePresenter;
 
     @Before
-    public void setUpAddNotePresenterTest () {
+    public void setUpAddNotePresenterTest() {
+
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
     }
 
     @Test
-    public void saveNote_successful () {
+    public void saveNote_showNotesList() {
 
-        when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn("image");
         mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
 
         verify(mNotesRepository).saveNote(any(Note.class));
         verify(mAddNoteView).showNotesList();
-
     }
 
     @Test
     public void saveNote_showEmptyNoteError() {
 
-        when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn("image");
         mAddNotePresenter.saveNote("", "");
 
         verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
-    public void takePictureTest() throws IOException {
+    public void takePicture() throws IOException {
 
         mAddNotePresenter.takePicture();
 
@@ -75,8 +71,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_successful() {
-
+    public void imageAvailable_showImagePreview() {
         when(mImageFile.exists()).thenReturn(true);
 
         mAddNotePresenter.imageAvailable();
@@ -85,9 +80,10 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_imageCaptureFailed() {
+    public void imageAvailable_showImageError() {
 
         when(mImageFile.exists()).thenReturn(false);
+
         mAddNotePresenter.imageAvailable();
 
         verify(mImageFile).delete();
@@ -95,10 +91,12 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailedTest() {
+    public void imageCaptureFailed() {
+
         mAddNotePresenter.imageCaptureFailed();
 
         verify(mImageFile).delete();
         verify(mAddNoteView).showImageError();
     }
+
 }
