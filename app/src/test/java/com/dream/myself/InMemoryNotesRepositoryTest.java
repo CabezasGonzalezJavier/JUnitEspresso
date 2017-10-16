@@ -12,71 +12,88 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 13/10/2017.
+ * Created by javierg on 16/10/2017.
  */
 
 public class InMemoryNotesRepositoryTest {
 
     private final static String TITLE = "title";
-    private final static String DESCRIPTION = "description";
 
     @Mock
     private NotesServiceApi mNotesServiceApi;
 
     @Mock
-    NotesRepository.LoadNotesCallback mLoadNotesCallback;
+    private NotesRepository.LoadNotesCallback mLoadNotesCallback;
 
     @Mock
-    NotesRepository.GetNoteCallback mGetNoteCallback;
+    private NotesRepository.GetNoteCallback mGetNoteCallback;
 
     @Captor
-    ArgumentCaptor<NotesServiceApi.NotesServiceCallback> mNotesServiceCallbackArgumentCaptor;
+    ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallbackArgumentCaptor;
 
     InMemoryNotesRepository mInMemoryNotesRepository;
 
+    List<Note> mNotes;
+
     @Before
     public void setUpInMemoryNotesRepositoryTest() {
+
         MockitoAnnotations.initMocks(this);
 
         mInMemoryNotesRepository = new InMemoryNotesRepository(mNotesServiceApi);
+
+        mNotes = new ArrayList<>();
+        mNotes.add(new Note("title", "description"));
+        mNotes.add(new Note("title", "description"));
+
     }
 
     @Test
-    public void getNotesTest() {
+    public void saveNoteTest() {
+        Note note = new Note("title", "description");
+
+        mInMemoryNotesRepository.saveNote(note);
+
+        verify(mNotesServiceApi).saveNote(note);
+    }
+
+    @Test
+    public void getNotes_requestsAllNotesFromServiceApi() {
+
+        Note note = new Note("title", "description");
+
         mInMemoryNotesRepository.getNotes(mLoadNotesCallback);
 
         verify(mNotesServiceApi).getAllNotes(any(NotesServiceApi.NotesServiceCallback.class));
     }
 
     @Test
-    public void getNote_onNotesLoaded() {
+    public void saveNote_savesNoteToServiceAPIAndInvalidatesCache() {
 
-        Note note = new Note(TITLE, DESCRIPTION);
+        Note newNote = new Note("title", "description");
 
-        mInMemoryNotesRepository.getNote(note.getId(), mGetNoteCallback);
+        mInMemoryNotesRepository.saveNote(newNote);
 
-        verify(mNotesServiceApi).getNote(eq(note.getId()), any(NotesServiceApi.NotesServiceCallback.class));
-
+        assertThat(mInMemoryNotesRepository.mCachedNotes, is(nullValue()));
     }
 
     @Test
-    public void saveNoteTest() {
+    public void getNote_requestsSingleNoteFromServiceApi() {
 
+        mInMemoryNotesRepository.getNote(TITLE, mGetNoteCallback);
 
-        Note note = new Note(TITLE, DESCRIPTION);
-
-        mInMemoryNotesRepository.saveNote(note);
-
-        verify(mNotesServiceApi).saveNote(note);
-        assertThat(mInMemoryNotesRepository.mCachedNotes, is(nullValue()));
+        verify(mNotesServiceApi).getNote(anyString(), any(NotesServiceApi.NotesServiceCallback.class));
     }
 
 }

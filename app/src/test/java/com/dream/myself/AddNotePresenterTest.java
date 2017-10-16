@@ -19,13 +19,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 13/10/2017.
+ * Created by javierg on 16/10/2017.
  */
 
 public class AddNotePresenterTest {
 
-    private final static String TITLE = "title";
-    private final static String DESCRIPTION = "description";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -37,8 +37,7 @@ public class AddNotePresenterTest {
     AddNotePresenter mAddNotePresenter;
 
     @Before
-    public void setUpAddNotePresenterTest() {
-
+    public void setUpAddNotePresenterTest () {
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
@@ -62,16 +61,18 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void takePicture() throws IOException {
+    public void takePicture_openCamera() throws IOException {
 
         mAddNotePresenter.takePicture();
 
-        verify(mImageFile).create(anyString(), anyString());
-        verify(mAddNoteView).openCamera(anyString());
+        verify( mImageFile).create(anyString(), anyString());
+        verify(mAddNoteView).openCamera(mImageFile.getPath());
+
     }
 
     @Test
     public void imageAvailable_showImagePreview() {
+
         when(mImageFile.exists()).thenReturn(true);
 
         mAddNotePresenter.imageAvailable();
@@ -80,7 +81,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_showImageError() {
+    public void imageAvailable_imageCaptureFailed() {
 
         when(mImageFile.exists()).thenReturn(false);
 
@@ -91,7 +92,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailed() {
+    public void imageCaptureFailed_captureFailed() {
 
         mAddNotePresenter.imageCaptureFailed();
 

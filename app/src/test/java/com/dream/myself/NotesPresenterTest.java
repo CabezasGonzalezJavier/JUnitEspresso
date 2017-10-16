@@ -20,7 +20,7 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 13/10/2017.
+ * Created by javierg on 16/10/2017.
  */
 
 public class NotesPresenterTest {
@@ -32,11 +32,11 @@ public class NotesPresenterTest {
     private NotesContract.View mNotesView;
 
     @Captor
-    private ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
+    ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
 
     NotesPresenter mNotesPresenter;
 
-    private static List<Note> NOTES;
+    List<Note> NOTES;
 
     @Before
     public void setUpNotesPresenterTest() {
@@ -45,8 +45,9 @@ public class NotesPresenterTest {
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
 
         NOTES = new ArrayList<>();
+
         NOTES.add(new Note("title", "description"));
-        NOTES.add(new Note("title1", "description1"));
+        NOTES.add(new Note("title", "description"));
     }
 
     @Test
@@ -62,6 +63,7 @@ public class NotesPresenterTest {
         InOrder inOrder = Mockito.inOrder(mNotesView);
         inOrder.verify(mNotesView).setProgressIndicator(true);
         inOrder.verify(mNotesView).setProgressIndicator(false);
+
         verify(mNotesView).showNotes(NOTES);
     }
 
@@ -75,6 +77,7 @@ public class NotesPresenterTest {
 
     @Test
     public void openNoteDetailsTest() {
+
         Note note = new Note("title", "description");
 
         mNotesPresenter.openNoteDetails(note);
