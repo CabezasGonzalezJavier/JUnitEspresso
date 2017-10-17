@@ -19,13 +19,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 16/10/2017.
+ * Created by javierg on 17/10/2017.
  */
 
 public class AddNotePresenterTest {
 
-    private static final String TITLE = "title";
-    private static final String DESCRIPTION = "description";
+    private final static String TITLE = "title";
+    private final static String DESCRIPTION = "description";
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -46,6 +46,12 @@ public class AddNotePresenterTest {
     @Test
     public void saveNote_showNotesList() {
 
+        String imageUrl = "imageUrl";
+        Note newNote = new Note(TITLE, DESCRIPTION, imageUrl);
+
+        when(mImageFile.exists()).thenReturn(true);
+        when(mImageFile.getPath()).thenReturn(imageUrl);
+
         mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
 
         verify(mNotesRepository).saveNote(any(Note.class));
@@ -54,6 +60,10 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_showEmptyNoteError() {
+        String imageUrl = "imageUrl";
+
+        when(mImageFile.exists()).thenReturn(true);
+        when(mImageFile.getPath()).thenReturn(imageUrl);
 
         mAddNotePresenter.saveNote("", "");
 
@@ -61,13 +71,12 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void takePicture_openCamera() throws IOException {
+    public void takePicture() throws IOException {
 
         mAddNotePresenter.takePicture();
 
-        verify( mImageFile).create(anyString(), anyString());
-        verify(mAddNoteView).openCamera(mImageFile.getPath());
-
+        verify(mImageFile).create(anyString(), anyString());
+        verify(mAddNoteView).openCamera(anyString());
     }
 
     @Test
@@ -81,7 +90,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_imageCaptureFailed() {
+    public void imageAvailable_failed() {
 
         when(mImageFile.exists()).thenReturn(false);
 
@@ -92,7 +101,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailed_captureFailed() {
+    public void imageCaptureFailed() {
 
         mAddNotePresenter.imageCaptureFailed();
 
