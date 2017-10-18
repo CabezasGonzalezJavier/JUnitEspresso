@@ -19,13 +19,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 17/10/2017.
+ * Created by javierg on 18/10/2017.
  */
 
 public class AddNotePresenterTest {
 
-    private final static String TITLE = "title";
-    private final static String DESCRIPTION = "description";
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -46,12 +46,6 @@ public class AddNotePresenterTest {
     @Test
     public void saveNote_showNotesList() {
 
-        String imageUrl = "imageUrl";
-        Note newNote = new Note(TITLE, DESCRIPTION, imageUrl);
-
-        when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn(imageUrl);
-
         mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
 
         verify(mNotesRepository).saveNote(any(Note.class));
@@ -60,10 +54,6 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_showEmptyNoteError() {
-        String imageUrl = "imageUrl";
-
-        when(mImageFile.exists()).thenReturn(true);
-        when(mImageFile.getPath()).thenReturn(imageUrl);
 
         mAddNotePresenter.saveNote("", "");
 
@@ -71,8 +61,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void takePicture() throws IOException {
-
+    public void takePictureTest() throws IOException {
         mAddNotePresenter.takePicture();
 
         verify(mImageFile).create(anyString(), anyString());
@@ -90,7 +79,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_failed() {
+    public void imageAvailable_showImageError() {
 
         when(mImageFile.exists()).thenReturn(false);
 
@@ -101,12 +90,11 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailed() {
+    public void imageCaptureFailedTest() {
 
         mAddNotePresenter.imageCaptureFailed();
 
         verify(mImageFile).delete();
         verify(mAddNoteView).showImageError();
     }
-
 }

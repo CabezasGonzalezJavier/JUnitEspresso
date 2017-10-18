@@ -20,32 +20,29 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 16/10/2017.
+ * Created by javierg on 18/10/2017.
  */
 
 public class NotesPresenterTest {
 
     @Mock
     private NotesRepository mNotesRepository;
-
     @Mock
     private NotesContract.View mNotesView;
 
     @Captor
     ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
 
-    NotesPresenter mNotesPresenter;
-
     List<Note> NOTES;
 
+    NotesPresenter mNotesPresenter;
+
     @Before
-    public void setUpNotesPresenterTest() {
+    public void setUpNotesPresenterTest () {
         MockitoAnnotations.initMocks(this);
 
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
-
-        NOTES = new ArrayList<>();
-
+        NOTES = new ArrayList();
         NOTES.add(new Note("title", "description"));
         NOTES.add(new Note("title", "description"));
     }
@@ -65,23 +62,22 @@ public class NotesPresenterTest {
         inOrder.verify(mNotesView).setProgressIndicator(false);
 
         verify(mNotesView).showNotes(NOTES);
+
     }
 
     @Test
-    public void addNewNoteTest() {
-
+    public void addNewNotes_showAddNote() {
         mNotesPresenter.addNewNote();
 
         verify(mNotesView).showAddNote();
     }
 
     @Test
-    public void openNoteDetailsTest() {
+    public void openNoteDetails_showNoteDetailUi() {
+        Note requestedNote = new Note("title", "description");
+        mNotesPresenter.openNoteDetails(requestedNote);
 
-        Note note = new Note("title", "description");
-
-        mNotesPresenter.openNoteDetails(note);
-
-        verify(mNotesView).showNoteDetailUi(note.getId());
+        verify(mNotesView).showNoteDetailUi(requestedNote.getId());
     }
+
 }
