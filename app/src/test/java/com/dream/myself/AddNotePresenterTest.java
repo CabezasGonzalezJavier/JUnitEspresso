@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 18/10/2017.
+ * Created by javierg on 19/10/2017.
  */
 
 public class AddNotePresenterTest {
@@ -37,7 +37,7 @@ public class AddNotePresenterTest {
     AddNotePresenter mAddNotePresenter;
 
     @Before
-    public void setUpAddNotePresenterTest () {
+    public void setUpAddNotePresenterTest() {
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
@@ -54,18 +54,18 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_showEmptyNoteError() {
-
         mAddNotePresenter.saveNote("", "");
 
         verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
-    public void takePictureTest() throws IOException {
+    public void takePicture_openCamera() throws IOException {
         mAddNotePresenter.takePicture();
 
         verify(mImageFile).create(anyString(), anyString());
         verify(mAddNoteView).openCamera(anyString());
+
     }
 
     @Test
@@ -90,7 +90,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageCaptureFailedTest() {
+    public void imageCaptureFailed_showImageError() {
 
         mAddNotePresenter.imageCaptureFailed();
 
