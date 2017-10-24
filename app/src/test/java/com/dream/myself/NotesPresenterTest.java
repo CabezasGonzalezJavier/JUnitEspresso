@@ -17,41 +17,43 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 23/10/2017.
+ * Created by javierg on 24/10/2017.
  */
 
 public class NotesPresenterTest {
 
+
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
+
     @Mock
     private NotesRepository mNotesRepository;
-
     @Mock
     private NotesContract.View mNotesView;
 
     @Captor
-    ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
+    private ArgumentCaptor<NotesRepository.LoadNotesCallback> mLoadNotesCallbackArgumentCaptor;
 
     NotesPresenter mNotesPresenter;
 
-    private List<Note> mList;
+    List<Note> mList;
 
     @Before
-    public void setUpNotesPresenterTest () {
+    public void setUpNotesPresenterTest() {
         MockitoAnnotations.initMocks(this);
 
         mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
-
         mList = new ArrayList<>();
-        mList.add(new Note("title", "description"));
-        mList.add(new Note("title", "description"));
+        mList.add(new Note(TITLE, DESCRIPTION));
+        mList.add(new Note(TITLE, DESCRIPTION));
     }
 
     @Test
-    public void loadNotes_getNotes() {
+    public void loadNotes_showNotes() {
 
         boolean forceUpdate = true;
 
@@ -68,19 +70,20 @@ public class NotesPresenterTest {
 
     @Test
     public void addNewNote_showAddNote() {
+
         mNotesPresenter.addNewNote();
 
-        verify(mNotesView).showAddNote();
+        mNotesView.showAddNote();
     }
 
     @Test
     public void openNoteDetails_showNoteDetailUi() {
 
-        Note note = new Note("title", "description");
+        Note note = new Note(TITLE, DESCRIPTION);
 
         mNotesPresenter.openNoteDetails(note);
 
-        verify(mNotesView).showNoteDetailUi(anyString());
+        mNotesView.showNoteDetailUi(note.getId());
     }
 
 }

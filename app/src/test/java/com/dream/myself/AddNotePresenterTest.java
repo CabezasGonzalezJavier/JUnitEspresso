@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 23/10/2017.
+ * Created by javierg on 24/10/2017.
  */
 
 public class AddNotePresenterTest {
@@ -40,7 +40,6 @@ public class AddNotePresenterTest {
 
     @Before
     public void setUpAddNotePresenterTest() {
-
         MockitoAnnotations.initMocks(this);
 
         mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
@@ -57,13 +56,15 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_showEmptyNoteError() {
+
         mAddNotePresenter.saveNote("", "");
 
         verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
-    public void takePicture () throws IOException {
+    public void takePicture_openCamera() throws IOException {
+
         mAddNotePresenter.takePicture();
 
         verify(mImageFile).create(anyString(), anyString());
@@ -71,7 +72,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_showImagePreview() {
+    public void imageAvailable() {
 
         when(mImageFile.exists()).thenReturn(true);
 
@@ -81,7 +82,7 @@ public class AddNotePresenterTest {
     }
 
     @Test
-    public void imageAvailable_imageCaptureFailed() {
+    public void imageAvailable_showImageError() {
 
         when(mImageFile.exists()).thenReturn(false);
 
@@ -94,7 +95,9 @@ public class AddNotePresenterTest {
     @Test
     public void imageCaptureFailed_showImageError() {
 
-        mAddNotePresenter.imageCaptureFailed();
+        when(mImageFile.exists()).thenReturn(false);
+
+        mAddNotePresenter.imageAvailable();
 
         verify(mImageFile).delete();
         verify(mAddNoteView).showImageError();

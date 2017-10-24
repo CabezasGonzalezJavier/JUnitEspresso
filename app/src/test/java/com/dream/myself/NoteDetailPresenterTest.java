@@ -14,13 +14,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javierg on 23/10/2017.
+ * Created by javierg on 24/10/2017.
  */
 
 public class NoteDetailPresenterTest {
@@ -28,7 +26,7 @@ public class NoteDetailPresenterTest {
 
     private static final String TITLE = "title";
     private static final String DESCRIPTION = "description";
-    private static final String IMAGE_URL = "imageUrl";
+    private static final String IMAGE_URL = "imageURL";
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -37,7 +35,7 @@ public class NoteDetailPresenterTest {
     private NoteDetailContract.View mNotesDetailView;
 
     @Captor
-    ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallback;
+    private ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallbackArgumentCaptor;
 
     NoteDetailPresenter mNoteDetailPresenter;
 
@@ -49,14 +47,14 @@ public class NoteDetailPresenterTest {
     }
 
     @Test
-    public void openNote_showTitleDescription () {
+    public void openNote_showTitleDescription() {
 
         Note note = new Note(TITLE, DESCRIPTION);
 
         mNoteDetailPresenter.openNote(note.getId());
 
-        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallback.capture());
-        mGetNoteCallback.getValue().onNoteLoaded(note);
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
 
         InOrder inOrder = Mockito.inOrder(mNotesDetailView);
         inOrder.verify(mNotesDetailView).setProgressIndicator(true);
@@ -68,13 +66,14 @@ public class NoteDetailPresenterTest {
     }
 
     @Test
-    public void openNote_showTitleDescriptionImageUrl () {
+    public void openNote_showTitleDescriptionImageUrl() {
+
         Note note = new Note(TITLE, DESCRIPTION, IMAGE_URL);
 
         mNoteDetailPresenter.openNote(note.getId());
 
-        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallback.capture());
-        mGetNoteCallback.getValue().onNoteLoaded(note);
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
 
         InOrder inOrder = Mockito.inOrder(mNotesDetailView);
         inOrder.verify(mNotesDetailView).setProgressIndicator(true);
@@ -86,35 +85,20 @@ public class NoteDetailPresenterTest {
     }
 
     @Test
-    public void openNote_hideTitleDescriptionImageUrl () {
+    public void openNote_showMissingNote() {
 
         Note note = new Note("", "");
 
         mNoteDetailPresenter.openNote(note.getId());
 
-        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallback.capture());
-        mGetNoteCallback.getValue().onNoteLoaded(note);
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(null);
 
         InOrder inOrder = Mockito.inOrder(mNotesDetailView);
         inOrder.verify(mNotesDetailView).setProgressIndicator(true);
         inOrder.verify(mNotesDetailView).setProgressIndicator(false);
 
-        verify(mNotesDetailView).hideTitle();
-        verify(mNotesDetailView).hideDescription();
-        verify(mNotesDetailView).hideImage();
-
-    }
-
-    @Test
-    public void showNote_showTitleDescription() {
-
-        Note note = new Note(TITLE, DESCRIPTION);
-
-        mNoteDetailPresenter.showNote(note);
-
-        verify(mNotesDetailView).showTitle(TITLE);
-        verify(mNotesDetailView).showDescription(DESCRIPTION);
-        verify(mNotesDetailView).hideImage();
+        verify(mNotesDetailView).showMissingNote();
     }
 
     @Test
@@ -130,7 +114,20 @@ public class NoteDetailPresenterTest {
     }
 
     @Test
-    public void showNote_hideTitleDescriptionImageUrl () {
+    public void showNote_showTitleDescription() {
+
+        Note note = new Note(TITLE, DESCRIPTION);
+
+        mNoteDetailPresenter.showNote(note);
+
+        verify(mNotesDetailView).showTitle(TITLE);
+        verify(mNotesDetailView).showDescription(DESCRIPTION);
+        verify(mNotesDetailView).hideImage();
+    }
+
+    @Test
+    public void showNote_hideTitleDescriptionImageUrl() {
+
         Note note = new Note("", "");
 
         mNoteDetailPresenter.showNote(note);
