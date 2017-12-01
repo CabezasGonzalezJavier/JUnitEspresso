@@ -19,36 +19,33 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by javierg on 24/10/2017.
+ * Created by javierg on 01/12/2017.
  */
 
 public class AddNotePresenterTest {
 
-    private static final String TITLE = "title";
-    private static final String DESCRIPTION = "description";
-
     @Mock
-    private NotesRepository mNotesRepository;
-
+    NotesRepository mNotesRepository;
     @Mock
-    private AddNoteContract.View mAddNoteView;
-
+    AddNoteContract.View mAddNoteView;
     @Mock
-    private ImageFile mImageFile;
+    ImageFile mImageFile;
 
-    AddNotePresenter mAddNotePresenter;
+    AddNotePresenter mPresenter;
 
     @Before
-    public void setUpAddNotePresenterTest() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        mAddNotePresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
+        mPresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
     }
 
     @Test
-    public void saveNote_showNotesList() {
+    public void saveNote_saveNote() {
+        String title = "title";
+        String description = "description";
 
-        mAddNotePresenter.saveNote(TITLE, DESCRIPTION);
+        mPresenter.saveNote(title, description);
 
         verify(mNotesRepository).saveNote(any(Note.class));
         verify(mAddNoteView).showNotesList();
@@ -56,51 +53,50 @@ public class AddNotePresenterTest {
 
     @Test
     public void saveNote_showEmptyNoteError() {
+        String title = "";
+        String description = "";
 
-        mAddNotePresenter.saveNote("", "");
+        mPresenter.saveNote(title, description);
 
         verify(mAddNoteView).showEmptyNoteError();
     }
 
     @Test
-    public void takePicture_openCamera() throws IOException {
+    public void takePicture() throws IOException {
 
-        mAddNotePresenter.takePicture();
+        mPresenter.takePicture();
 
         verify(mImageFile).create(anyString(), anyString());
         verify(mAddNoteView).openCamera(anyString());
     }
 
     @Test
-    public void imageAvailable() {
+    public void imageAvailable_showImagePreview(){
 
         when(mImageFile.exists()).thenReturn(true);
 
-        mAddNotePresenter.imageAvailable();
+        mPresenter.imageAvailable();
 
-        verify(mAddNoteView).showImagePreview(anyString());
+        verify(mAddNoteView).showImagePreview(mImageFile.getPath());
     }
 
     @Test
-    public void imageAvailable_showImageError() {
+    public void imageAvailable() {
 
         when(mImageFile.exists()).thenReturn(false);
 
-        mAddNotePresenter.imageAvailable();
+        mPresenter.imageAvailable();
 
-        verify(mImageFile).delete();
         verify(mAddNoteView).showImageError();
+        verify(mImageFile).delete();
     }
 
     @Test
-    public void imageCaptureFailed_showImageError() {
+    public void imageCaptureFailed() {
+        mPresenter.imageCaptureFailed();
 
-        when(mImageFile.exists()).thenReturn(false);
-
-        mAddNotePresenter.imageAvailable();
-
-        verify(mImageFile).delete();
         verify(mAddNoteView).showImageError();
+        verify(mImageFile).delete();
     }
 
 }
