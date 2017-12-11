@@ -7,22 +7,21 @@ import com.dream.myself.notedetail.NoteDetailPresenter;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 /**
- * Created by javiergonzalezcabezas on 1/10/17.
+ * Created by javierg on 01/12/2017.
  */
 
 public class NoteDetailPresenterTest {
 
-    public static final String INVALID_ID = "INVALID_ID";
-
-    public static final String TITLE_TEST = "title";
-
-    public static final String DESCRIPTION_TEST = "description";
 
     @Mock
     NotesRepository mNotesRepository;
@@ -30,42 +29,76 @@ public class NoteDetailPresenterTest {
     @Mock
     NoteDetailContract.View mNotesDetailView;
 
-    NoteDetailPresenter mNoteDetailPresenter;
+    @Captor
+    ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallbackArgumentCaptor;
+
+    NoteDetailPresenter mPresenter;
 
     @Before
-    public void setUpNoteDetailPresenter() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        mNoteDetailPresenter = new NoteDetailPresenter(mNotesRepository, mNotesDetailView);
+        mPresenter = new NoteDetailPresenter(mNotesRepository, mNotesDetailView);
     }
 
     @Test
-    public void showNoteTest() {
+    public void openNoteDifferentWay() {
+        String title = "title";
+        String description = "descripiton";
 
-        Note note = new Note(INVALID_ID, TITLE_TEST, DESCRIPTION_TEST);
-        String title = note.getTitle();
-        String description = note.getDescription();
-        String imageUrl = note.getImageUrl();
+        Note note = new Note(title, description);
 
-        mNoteDetailPresenter.showNote(note);
+        mPresenter.openNote(note.getId());
+
+        verify(mNotesRepository).getNote(eq(note.getId()), any(NotesRepository.GetNoteCallback.class));
+    }
+
+    @Test
+    public void openNote() {
+        String title = "title";
+        String description = "descripiton";
+
+        Note note = new Note(title, description);
+
+        mPresenter.openNote(note.getId());
+
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
 
         verify(mNotesDetailView).showTitle(title);
         verify(mNotesDetailView).showDescription(description);
-        verify(mNotesDetailView).showImage(imageUrl);
+        verify(mNotesDetailView).hideImage();
     }
 
     @Test
-    public void show_EmptyNote() {
+    public void openNoteTitleDescriptionImage() {
+        String title = "title";
+        String description = "descripiton";
+        String image = "image";
 
-        String titleNote = new String();
-        String descriptionNote = new String();
-        Note note = new Note(titleNote, descriptionNote);
+        Note note = new Note(title, description, image);
 
-        mNoteDetailPresenter.showNote(note);
+        mPresenter.openNote(note.getId());
+
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
+
+        verify(mNotesDetailView).showTitle(title);
+        verify(mNotesDetailView).showDescription(description);
+        verify(mNotesDetailView).showImage(image);
+    }
+
+    @Test
+    public void openNote_hideTitleDescriptionImage() {
+        Note note = new Note("", "");
+
+        mPresenter.openNote(note.getId());
+
+        verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackArgumentCaptor.capture());
+        mGetNoteCallbackArgumentCaptor.getValue().onNoteLoaded(note);
 
         verify(mNotesDetailView).hideTitle();
         verify(mNotesDetailView).hideDescription();
         verify(mNotesDetailView).hideImage();
     }
-
 }

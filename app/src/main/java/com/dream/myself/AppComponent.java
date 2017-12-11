@@ -15,8 +15,6 @@ import dagger.Component;
 @Component(modules = AppModule.class)
 public interface AppComponent {
 
-    void inject(NotesActivity notesActivity);
-    void inject(AddNoteActivity addNoteActivity);
-    void inject(NoteDetailActivity noteDetailActivity);
+    void inject(BaseActivity baseActivity);
 
 }

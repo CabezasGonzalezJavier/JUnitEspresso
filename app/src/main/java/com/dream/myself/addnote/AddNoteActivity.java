@@ -23,28 +23,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import com.dream.myself.DiscernApplication;
+import com.dream.myself.BaseActivity;
 import com.dream.myself.R;
-import com.dream.myself.data.NotesRepository;
 import com.dream.myself.util.EspressoIdlingResource;
-import com.dream.myself.util.ImageFile;
 import com.dream.myself.util.StartActivity;
-
-import javax.inject.Inject;
 
 /**
  * Displays an add note screen.
  */
-public class AddNoteActivity extends AppCompatActivity {
-
-    @Inject
-    NotesRepository mRepository;
-
-    @Inject
-    ImageFile mImageFile;
+public class AddNoteActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +52,7 @@ public class AddNoteActivity extends AppCompatActivity {
             initFragment(AddNoteFragment.newInstance());
         }
 
-        initializeDagger();
         initFragment();
-    }
-
-    private void initializeDagger() {
-        DiscernApplication app = (DiscernApplication) getApplication();
-        app.getAppComponent().inject(this);
     }
 
     private void initFragment () {
